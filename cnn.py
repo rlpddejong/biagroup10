@@ -28,38 +28,42 @@ from sklearn.metrics import roc_curve, auc
 IMAGE_SIZE = 96
 
 
+
 def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32):
 
      # dataset parameters
-     train_path = os.path.join(base_dir, 'train+val', 'train')
-     valid_path = os.path.join(base_dir, 'train+val', 'valid')
-
+     TRAIN_PATH = os.path.join(base_dir, 'train+val', 'train')
+     VALID_PATH = os.path.join(base_dir, 'train+val', 'valid')
 
      RESCALING_FACTOR = 1./255
-
+     
      # instantiate data generators
      datagen = ImageDataGenerator(rescale=RESCALING_FACTOR)
 
-     train_gen = datagen.flow_from_directory(train_path,
+     train_gen = datagen.flow_from_directory(TRAIN_PATH,
                                              target_size=(IMAGE_SIZE, IMAGE_SIZE),
                                              batch_size=train_batch_size,
                                              class_mode='binary')
 
-     val_gen = datagen.flow_from_directory(valid_path,
+     val_gen = datagen.flow_from_directory(VALID_PATH,
                                              target_size=(IMAGE_SIZE, IMAGE_SIZE),
                                              batch_size=val_batch_size,
-                                             class_mode='binary')
-
+                                             class_mode='binary',
+                                             shuffle=False)
+     
      return train_gen, val_gen
 
 
+
+
 def get_model(kernel_size=(3,3), pool_size=(4,4), first_filters=32, second_filters=64):
+
 
      # build the model
      model = Sequential()
 
      model.add(Conv2D(first_filters, kernel_size, activation = 'relu', padding = 'same', input_shape = (IMAGE_SIZE, IMAGE_SIZE, 3)))
-     model.add(MaxPool2D(pool_size = pool_size))
+     model.add(MaxPool2D(pool_size = pool_size)) 
 
      model.add(Conv2D(second_filters, kernel_size, activation = 'relu', padding = 'same'))
      model.add(MaxPool2D(pool_size = pool_size))
@@ -67,8 +71,8 @@ def get_model(kernel_size=(3,3), pool_size=(4,4), first_filters=32, second_filte
      model.add(Flatten())
      model.add(Dense(64, activation = 'relu'))
      model.add(Dense(1, activation = 'sigmoid'))
-
-
+     
+    
      # compile the model
      model.compile(SGD(lr=0.01, momentum=0.95), loss = 'binary_crossentropy', metrics=['accuracy'])
 
