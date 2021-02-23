@@ -5,15 +5,14 @@ Course: 8p361  |  Group: 10  |  year: 20/21
 
 =======> File Information <=======
 
-cnn_assignment3_group10.ipynb: This is the notebook where the questions are answered step by step.
-cnn.py: This is a python document with the functions needed for answering the questions in the notebook including ROC analysis and constructing of FCN model.
+assignment_4_group10.ipynb: This is the notebook where the questions are answered step by step.
+transfer.py: This is a python document with the functions needed for answering the questions in the notebook.
 
-my_first_cnn_model.json: This is the original trained cnn model of the assignment stored as json file.
-my_first_cnn_model_weights.hdf5: This is a file with the weights of the original trained cnn model.
+transfer_imagenet.json: This is the trained model initialized with ImageNet weights stored as json file.
+transfer_imagenet_weights.hdf5: This a file with the weights of the trained model initialized with ImageNet weights.
 
-my_first_fcn_model.json: This is the new fcn model of exercise 2 stored as json file.
-my_first_fcn_model_weights.hdf5: This is a file with the weights of the new fcn model of exercise 2.
+transfer_random.json: This is the trained model initialized with random weights stored as json file.
+transfer_random_weights.hdf5: This a file with the weights of the trained model initialized with random weights.
 
-kaggle_submission.py: This is the file with which the submission for Kaggle has been made.
-submission.csv: This is the submission that was submitted to Kaggle for evaluation.
-
+No_dropout_transfer.json: This is the trained model initialized with ImageNet weights without dropout layers stored as json file.
+No_dropout_transfer_weights.hdf5:This a file with the weights of the trained model initialized with ImageNet weights without dropout layers.
