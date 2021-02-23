@@ -43,7 +43,7 @@ def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32):
      return train_gen, val_gen
 
 
-def get_model(weigths):
+def get_model(weigths,dropout='Yes'):
     # the size of the images in the PCAM dataset
     IMAGE_SIZE = 96
     
@@ -62,7 +62,8 @@ def get_model(weigths):
     
     output = pretrained(input)
     output = GlobalAveragePooling2D()(output)
-    output = Dropout(0.5)(output)
+    if dropout == 'Yes':
+        output = Dropout(0.5)(output)
     output = Dense(1, activation='sigmoid')(output)
     
     model = Model(input, output)
@@ -75,11 +76,11 @@ def get_model(weigths):
 
     return model
 
-def train_model(model,train_gen,val_gen):
+def train_model(model,train_gen,val_gen,name):
     
     # save the model and weights
-    model_name = 'my_first_transfer_model'
-    model_filepath = model_name + '.json'
+    model_name = name
+    model_filepath = model_name + '.json' 
     weights_filepath = model_name + '_weights.hdf5'
     
     model_json = model.to_json() # serialize model to JSON
