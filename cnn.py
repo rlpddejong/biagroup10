@@ -127,11 +127,9 @@ def get_model2(kernel_size=(3,3), pool_size=(4,4), first_filters=32, second_filt
      model.add(Conv2D(second_filters, kernel_size, activation = 'relu', padding = 'same'))
      model.add(MaxPool2D(pool_size = pool_size))
     
-     # added convolutional activation layers
-     model.add(Conv2D(64, (3,3), activation = 'relu', padding = 'same'))
-
-     model.add(Conv2D(1, (3,3), activation = 'sigmoid', padding = 'same'))   
-     model.add(GlobalMaxPooling2D())
+     model.add(MaxPool2D(pool_size=pool_size))
+     model.add(Conv2D(1, kernel_size,activation = 'sigmoid', padding = 'same'))
+     model.add(Flatten())
     
      # compile the model
      model.compile(SGD(lr=0.01, momentum=0.95), loss = 'binary_crossentropy', metrics=['accuracy'])
