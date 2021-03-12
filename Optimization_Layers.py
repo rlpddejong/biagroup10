@@ -26,8 +26,8 @@ IMAGE_SIZE = 96
 def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32):
 
      # dataset parameters
-     TRAIN_PATH = os.path.join(base_dir, 'train+val', 'train')
-     VALID_PATH = os.path.join(base_dir, 'train+val', 'valid')
+     TRAIN_PATH = os.path.join(base_dir, 'train')
+     VALID_PATH = os.path.join(base_dir, 'valid')
 
      RESCALING_FACTOR = 1./255
      
@@ -48,8 +48,9 @@ def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32):
      return train_gen, val_gen
 
 
-
-def get_model(nrlayers,nrconv,kernel_size=(3,3), pool_size=(4,4), first_filters=32, second_filters=64, third_filters = 128):
+def get_model(nrlayers,nrconv,nrdense,kernel_size=(3,3), pool_size=(4,4), first_filters=32, second_filters=64, third_filters = 128):
+     
+     x = [64,128,256]
     
      # build the model
      model = Sequential()
@@ -70,13 +71,42 @@ def get_model(nrlayers,nrconv,kernel_size=(3,3), pool_size=(4,4), first_filters=
          model.add(MaxPool2D(pool_size = pool_size))
      
      model.add(Flatten())
-     model.add(Dense(64, activation = 'relu'))
+     model.add(Dense(nrdense, activation = 'relu'))
+     model.add(Dense(1, activation = 'sigmoid'))
+     
+     model.compile(SGD(lr=0.01, momentum=0.95), loss = 'binary_crossentropy', metrics=['accuracy'])
+
+     return model  
+
+def get_model_test(nrlayers,nrconv,kernel_size=(3,3), pool_size=(4,4), first_filters=32, second_filters=64, third_filters = 128):
+    
+     # build the model
+     model = Sequential()
+     
+     model.add(Conv2D(first_filters, kernel_size, activation = 'relu', padding = 'same', input_shape = (IMAGE_SIZE, IMAGE_SIZE, 3)))
+     for i in range(nrconv-1):
+         model.add(Conv2D(first_filters, kernel_size, activation = 'relu', padding = 'same'))
+     model.add(MaxPool2D(pool_size = pool_size)) 
+     
+     
+     for i in range(nrconv):
+         model.add(Conv2D(second_filters, kernel_size, activation = 'relu', padding = 'same'))
+     model.add(MaxPool2D(pool_size = pool_size))
+     
+     if nrlayers >= 3:
+         for i in range(nrconv):
+             model.add(Conv2D(third_filters, kernel_size, activation = 'relu', padding = 'same'))
+         model.add(MaxPool2D(pool_size = pool_size))
+     
+     model.add(Flatten())
+     model.add(Dense(256, activation = 'relu'))
      model.add(Dense(1, activation = 'sigmoid'))
      
      model.compile(SGD(lr=0.01, momentum=0.95), loss = 'binary_crossentropy', metrics=['accuracy'])
 
      return model
-
+    
+    
 
 def train_model(model,train_gen,val_gen,name):
     # save the model and weights
