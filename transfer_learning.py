@@ -18,15 +18,15 @@ from tensorflow.keras.layers import Input, Dense, GlobalAveragePooling2D, Dropou
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
 #from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
-from tensorflow.keras.applications.resnet50 import ResNet50
-from tensorflow.keras.applications.resnet50 import preprocess_input
+from tensorflow.keras.applications import ResNet50V2,ResNet50
+from tensorflow.keras.applications.resnet_v2 import preprocess_input
 
 
-def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32):
+def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32,shuffle=True):
     
      # dataset parameters
-     train_path = os.path.join(base_dir, 'train+val', 'train')
-     valid_path = os.path.join(base_dir, 'train+val', 'valid')
+     train_path = os.path.join(base_dir, 'train')
+     valid_path = os.path.join(base_dir, 'valid')
 	 
      IMAGE_SIZE = 96
      # instantiate data generators
@@ -40,12 +40,13 @@ def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32):
      val_gen = datagen.flow_from_directory(valid_path,
                                              target_size=(IMAGE_SIZE, IMAGE_SIZE),
                                              batch_size=val_batch_size,
-                                             class_mode='binary')
+                                             class_mode='binary',
+                                             shuffle = shuffle)
 
      return train_gen, val_gen
 
 
-def get_model(weigths,dropout='Yes'):
+def get_model(weights,dropout='Yes'):
     # the size of the images in the PCAM dataset
     IMAGE_SIZE = 96
     
@@ -55,8 +56,8 @@ def get_model(weigths,dropout='Yes'):
     input = Input(input_shape)
     
     # get the pretrained model, cut out the top layer
-    pretrained = ResNet50(input_shape=input_shape, include_top=False, weights=weigths)
-    #pretrained = ResNet50(include_top=False, weights=weigths)
+    #pretrained = ResNet50V2(include_top=False,weights=weights,input_shape=input_shape,pooling=None)
+    pretrained = ResNet50(include_top=False, weights=weights,input_shape=input_shape)
     
     # if the pretrained model it to be used as a feature extractor, and not for
     # fine-tuning, the weights of the model can be frozen in the following way
@@ -64,10 +65,9 @@ def get_model(weigths,dropout='Yes'):
     #    layer.trainable = False
     
     output = pretrained(input)
-  #  output = GlobalAveragePooling2D()(output)
-   # if dropout == 'Yes':
-   #     output = Dropout(0.5)(output)
-   # output = Dense(1, activation='sigmoid')(output)
+    output = GlobalAveragePooling2D()(output)
+    output = Dropout(0.5)(output)
+    output = Dense(1, activation='sigmoid')(output)
     
     model = Model(input, output)
     
