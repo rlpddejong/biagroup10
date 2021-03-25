@@ -49,8 +49,6 @@ def get_pcam_generators(base_dir, train_batch_size=32, val_batch_size=32):
 
 def get_model(nrlayers,nrconv,nrdense,kernel_size=(3,3), pool_size=(4,4), first_filters=32, second_filters=64, third_filters = 128):
      
-     x = [64,128,256]
-    
      # build the model
      model = Sequential()
      
